@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mapa Calahorra - Catedral y El Raso</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    html, body, #map { height: 100%; margin: 0; padding: 0; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // Coordenadas dadas (lat, lng)
+    const catedral = [42.298974053521775, -1.9577569236175345];
+    const elRaso = [42.301664710448975, -1.961359105630802];
+
+    // Inicializar mapa centrado entre los dos puntos
+    const centerLat = (catedral[0] + elRaso[0]) / 2;
+    const centerLng = (catedral[1] + elRaso[1]) / 2;
+    const map = L.map('map').setView([centerLat, centerLng], 16);
+
+    // Cargar capa de mapa
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Añadir marcadores
+    L.marker(catedral).addTo(map).bindPopup("Catedral de Santa María").openPopup();
+    L.marker(elRaso).addTo(map).bindPopup("El Raso");
+
+    // Línea recta entre puntos
+    const polyline = L.polyline([catedral, elRaso], {color: 'blue'}).addTo(map);
+
+    // Calcular distancia en metros usando Leaflet
+    const distanciaMetros = map.distance(catedral, elRaso);
+
+    // Calcular tiempos aproximados (en minutos)
+    const tiempoAndando = (distanciaMetros / 5000 * 60).toFixed(1); // 5 km/h
+    const tiempoBici = (distanciaMetros / 15000 * 60).toFixed(1);    // 15 km/h
+
+    // Mostrar popup en el punto medio con distancia y tiempos
+    const puntoMedio = [(catedral[0] + elRaso[0]) / 2, (catedral[1] + elRaso[1]) / 2];
+    L.popup()
+      .setLatLng(puntoMedio)
+      .setContent(`
+        <b>Distancia:</b> ${(distanciaMetros/1000).toFixed(2)} km<br>
+        <b>Tiempo andando:</b> ${tiempoAndando} min<br>
+        <b>Tiempo en bici:</b> ${tiempoBici} min
+      `)
+      .openOn(map);
+  </script>
+</body>
+</html>
